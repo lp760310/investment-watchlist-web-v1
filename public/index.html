@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>投资观察池学习表 V2</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <h1>投资观察池学习表</h1>
+        <p>20只 ETF / 股票实时观察</p>
+      </div>
+      <div class="top-actions">
+        <button id="refreshBtn" type="button">刷新数据</button>
+        <span>最后更新时间：<strong id="lastUpdate">暂无</strong></span>
+      </div>
+    </header>
+
+    <main class="page">
+      <section class="table-section" aria-label="20只标的实时观察表格">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>序号</th>
+                <th>类型</th>
+                <th>代码</th>
+                <th>名称</th>
+                <th>当前价格</th>
+                <th>涨跌幅</th>
+                <th>成交量</th>
+                <th>市值 / 基金规模</th>
+                <th>市盈率 PE</th>
+                <th>行业 / 主题</th>
+                <th>52周高点</th>
+                <th>52周低点</th>
+                <th>今日走势判断</th>
+                <th>新手解释</th>
+              </tr>
+            </thead>
+            <tbody id="assetRows">
+              <tr><td colspan="14" class="empty">正在加载 20 只观察标的...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="analysis-section" aria-label="技术分析">
+        <h2>技术分析</h2>
+        <div id="analysisList" class="analysis-list"></div>
+      </section>
+
+      <section class="dictionary-section" aria-label="技术名词解释">
+        <h2>技术名词解释</h2>
+        <dl id="dictionary" class="dictionary"></dl>
+      </section>
+    </main>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
