@@ -180,6 +180,11 @@ tbody tr:hover {
   color: var(--green);
 }
 
+.status-pill.stale {
+  background: #eef2ff;
+  color: #3f4fa3;
+}
+
 .status-pill.fallback {
   background: #f7eee9;
   color: #9a4a2f;

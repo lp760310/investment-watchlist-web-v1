@@ -9,6 +9,8 @@ const lastUpdate = document.querySelector('#lastUpdate');
 const dataStatus = document.querySelector('#dataStatus');
 const dataSources = document.querySelector('#dataSources');
 const cacheInfo = document.querySelector('#cacheInfo');
+const usMarketStatus = document.querySelector('#usMarketStatus');
+const usMarketNote = document.querySelector('#usMarketNote');
 const delayNote = document.querySelector('#delayNote');
 
 function formatDateTime(value) {
@@ -29,6 +31,15 @@ function formatNumber(value, digits = 2) {
   const number = Number(value);
   if (!Number.isFinite(number)) return '暂无';
   return number.toLocaleString('zh-CN', { maximumFractionDigits: digits });
+}
+
+function formatValue(value) {
+  if (value === null || value === undefined || value === '') return '暂无';
+  if (typeof value === 'number' && !Number.isFinite(value)) return '暂无';
+  if (typeof value === 'object') return '暂无';
+  const text = String(value).trim();
+  if (!text || text === 'null' || text === 'undefined' || text === 'NaN' || text === '[object Object]') return '暂无';
+  return text;
 }
 
 function formatPercent(value) {
@@ -60,11 +71,11 @@ function buildAnalysis(asset) {
 
   if (!hasPrice || !hasChange || !hasVolume) {
     return {
-      title: `【${asset.name || asset.symbol}】`,
-      trend: '当前缺少实时价格或成交量，暂不生成技术判断。',
-      volume: '当前缺少实时价格或成交量，暂不生成技术判断。',
-      supportResistance: '当前缺少实时价格或成交量，暂不生成技术判断。',
-      insufficient: asset.dataDelayNote || '当前数据不足。'
+      title: `【${formatValue(asset.name || asset.symbol)}】`,
+      trend: '当前缺少有效行情数据，暂不生成技术判断。',
+      volume: '当前缺少有效行情数据，暂不生成技术判断。',
+      supportResistance: '当前缺少有效行情数据，暂不生成技术判断。',
+      insufficient: formatValue(asset.dataDelayNote)
     };
   }
 
@@ -78,7 +89,7 @@ function buildAnalysis(asset) {
     : '当前接口未返回 52 周高低点，暂不判断支撑位 / 压力位。';
 
   return {
-    title: `【${asset.name || asset.symbol}】`,
+    title: `【${formatValue(asset.name || asset.symbol)}】`,
     trend,
     volume: volumeText,
     supportResistance,
@@ -94,23 +105,23 @@ function renderTable() {
   }
 
   assetRows.innerHTML = rows.map((asset, index) => {
-    const statusClass = asset.dataStatus === '接口数据' ? 'live' : 'fallback';
+    const statusClass = asset.dataStatus === '接口数据' ? 'live' : asset.dataStatus === '上次成功数据' ? 'stale' : 'fallback';
     const percentClass = changeClass(asset.changePercent);
     return `
       <tr>
         <td class="index-cell">${index + 1}</td>
-        <td><span class="type-pill">${asset.type || '暂无'}</span></td>
-        <td class="symbol">${asset.symbol || '暂无'}</td>
-        <td class="name-cell">${asset.name || '暂无'}</td>
+        <td><span class="type-pill">${formatValue(asset.type)}</span></td>
+        <td class="symbol">${formatValue(asset.symbol)}</td>
+        <td class="name-cell">${formatValue(asset.name)}</td>
         <td>${formatNumber(asset.price)}</td>
         <td class="${percentClass}">${formatPercent(asset.changePercent)}</td>
         <td>${formatNumber(asset.volume, 0)}</td>
         <td>${displayMarketValue(asset)}</td>
         <td>${formatNumber(asset.peRatio)}</td>
-        <td>${asset.sectorOrTheme || '暂无'}</td>
+        <td>${formatValue(asset.sectorOrTheme)}</td>
         <td>${formatNumber(asset.week52High)}</td>
         <td>${formatNumber(asset.week52Low)}</td>
-        <td><span class="status-pill ${statusClass}">${asset.dataStatus || '暂无'}</span></td>
+        <td><span class="status-pill ${statusClass}">${formatValue(asset.dataStatus)}</span></td>
         <td>${formatDateTime(asset.updatedAt)}</td>
       </tr>
     `;
@@ -137,7 +148,9 @@ function renderSummary(summary) {
   dataStatus.textContent = summary?.dataStatus || '暂无';
   dataSources.textContent = summary?.dataSources || '暂无';
   cacheInfo.textContent = `${summary?.cacheLabel?.cn || '大陆 ETF 缓存：5分钟'}；${summary?.cacheLabel?.us || '美股缓存：24小时'}`;
-  delayNote.textContent = summary?.delayNote || '暂无';
+  usMarketStatus.textContent = formatValue(summary?.usMarketStatus);
+  usMarketNote.textContent = formatValue(summary?.usMarketNote);
+  delayNote.textContent = formatValue(summary?.delayNote);
   lastUpdate.textContent = formatDateTime(summary?.updatedAt || new Date().toISOString());
 }
 
@@ -165,6 +178,8 @@ async function loadAssets(forceRefresh = false) {
     dataStatus.textContent = '读取失败';
     dataSources.textContent = '暂无';
     cacheInfo.textContent = '暂无';
+    usMarketStatus.textContent = '暂无';
+    usMarketNote.textContent = '暂无';
     delayNote.textContent = '行情接口暂不可用。';
   } finally {
     refreshBtn.disabled = false;
