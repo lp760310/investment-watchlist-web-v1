@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const { createSupabaseClient } = require('./lib/supabaseClient');
 const { runDailyPriceUpdate } = require('./lib/updateDailyPrices');
-const { fetchMarketData } = require('./lib/marketData');
+const { fetchMarketData, sanitizeErrorMessage } = require('./lib/marketData');
 
 const app = express();
 const PORT = Number(process.env.PORT || 3000);
@@ -17,7 +17,7 @@ function getSupabaseOrFail(res) {
   try {
     return createSupabaseClient();
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: sanitizeErrorMessage(error, '服务配置暂不可用。') });
     return null;
   }
 }
@@ -51,7 +51,7 @@ function sendFallbackAssets(res, message) {
 app.get('/api/health', async (req, res) => {
   res.json({
     ok: true,
-    name: '投资观察池学习表 V2.1',
+    name: '投资观察池学习表 V2.2',
     time: new Date().toISOString()
   });
 });
@@ -61,7 +61,7 @@ app.get('/api/assets', async (req, res) => {
   try {
     supabase = createSupabaseClient();
   } catch (error) {
-    sendFallbackAssets(res, error.message);
+    sendFallbackAssets(res, sanitizeErrorMessage(error, '数据库配置暂不可用，已显示本地观察池配置。'));
     return;
   }
 
@@ -133,7 +133,9 @@ app.get('/api/market-data', async (req, res) => {
     const marketData = await fetchMarketData({ forceRefresh });
     res.json(marketData);
   } catch (error) {
-    res.status(500).json({ error: `读取行情数据失败：${error.message}` });
+    res.status(500).json({
+      error: sanitizeErrorMessage(error, '读取行情数据失败，当前请稍后重试。')
+    });
   }
 });
 
@@ -161,7 +163,7 @@ app.get('/api/assets/:symbol/history', async (req, res) => {
     .limit(30);
 
   if (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: sanitizeErrorMessage(error, '读取历史行情失败。') });
     return;
   }
 
@@ -179,7 +181,7 @@ app.get('/api/update-logs', async (req, res) => {
     .limit(20);
 
   if (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: sanitizeErrorMessage(error, '读取更新日志失败。') });
     return;
   }
 
@@ -197,7 +199,7 @@ app.post('/api/manual-update', async (req, res) => {
     const result = await runDailyPriceUpdate();
     res.json(result);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: sanitizeErrorMessage(error, '手动更新失败。') });
   }
 });
 
@@ -222,5 +224,5 @@ function buildTrend(history) {
 }
 
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`投资观察池学习表 V2.1 已启动：http://localhost:${PORT}`);
+  console.log(`投资观察池学习表 V2.2 已启动：http://localhost:${PORT}`);
 });
