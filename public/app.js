@@ -28,6 +28,9 @@ const assetRows = document.querySelector('#assetRows');
 const analysisList = document.querySelector('#analysisList');
 const refreshBtn = document.querySelector('#refreshBtn');
 const lastUpdate = document.querySelector('#lastUpdate');
+const dataStatus = document.querySelector('#dataStatus');
+const dataSources = document.querySelector('#dataSources');
+const delayNote = document.querySelector('#delayNote');
 
 function formatDateTime(value) {
   if (!value) return '暂无';
@@ -64,25 +67,26 @@ function changeClass(value) {
 }
 
 function typeLabel(asset) {
-  return asset.market === 'CN' ? '大陆ETF' : '美股股票';
+  return asset.type || '暂无';
 }
 
-function displayPrice(price) {
-  if (!price || price.close_price === null || price.close_price === undefined) return '暂无';
-  const currency = price.currency ? ` ${price.currency}` : '';
-  return `${formatNumber(price.close_price)}${currency}`;
+function displayPrice(asset) {
+  return formatNumber(asset.price);
 }
 
-function displayMarketValue(asset, price) {
-  if (!price?.market_cap) return '暂无';
-  const label = asset.market === 'CN' ? '基金规模' : '市值';
-  return `${label} ${formatNumber(price.market_cap, 0)}`;
+function displayMarketValue(asset) {
+  return formatNumber(asset.marketCapOrFundSize, 0);
+}
+
+function formatFieldStatus(asset) {
+  const success = asset.fieldStatus?.success?.length ? asset.fieldStatus.success.join('、') : '无';
+  const missing = asset.fieldStatus?.missing?.length ? asset.fieldStatus.missing.join('、') : '无';
+  return `已获取：${success}；暂无：${missing}`;
 }
 
 function dailyJudgement(asset) {
-  const price = asset.latest_price;
-  const change = Number(price?.change_percent);
-  if (!price || !Number.isFinite(change)) return '暂无行情，先观察数据是否成功更新。';
+  const change = Number(asset.changePercent);
+  if (!Number.isFinite(change)) return '暂无涨跌幅，先观察数据源是否成功返回。';
   if (change > 1) return '上涨较明显，可观察是否伴随放量和主题热度。';
   if (change > 0) return '小幅上涨，可观察上涨是否延续。';
   if (change < -1) return '下跌较明显，可观察是否接近支撑位。';
@@ -91,9 +95,8 @@ function dailyJudgement(asset) {
 }
 
 function buildAnalysis(asset) {
-  const price = asset.latest_price;
-  const change = Number(price?.change_percent);
-  const close = Number(price?.close_price);
+  const change = Number(asset.changePercent);
+  const close = Number(asset.price);
   const hasClose = Number.isFinite(close) && close > 0;
   const support = hasClose ? formatNumber(close * 0.97) : '暂无';
   const resistance = hasClose ? formatNumber(close * 1.03) : '暂无';
@@ -105,51 +108,57 @@ function buildAnalysis(asset) {
     if (change === 0) trend = '今日接近平盘，趋势方向暂不明显。';
   }
 
-  const volume = price?.volume
-    ? `成交量为 ${formatNumber(price.volume, 0)}，可继续观察是否比平时明显放大或缩小。`
+  const volume = asset.volume
+    ? `成交量为 ${formatNumber(asset.volume, 0)}，可继续观察是否比平时明显放大或缩小。`
     : '成交量暂无，暂时无法判断放量或缩量。';
 
-  const risk = asset.market === 'CN'
+  const missing52Week = asset.week52High === null || asset.week52High === undefined || asset.week52Low === null || asset.week52Low === undefined
+    ? '由于当前接口未返回 52 周高低点，暂不判断突破/回撤位置。'
+    : `52周区间为 ${formatNumber(asset.week52Low)} 到 ${formatNumber(asset.week52High)}，可观察价格处在区间的哪个位置。`;
+
+  const risk = asset.type === '大陆ETF'
     ? 'ETF 仍会受指数、行业轮动、流动性和节假日数据缺失影响。'
     : '美股成长股通常受业绩预期、利率变化和市场风险偏好影响，波动可能较大。';
 
   return {
-    title: `【${asset.name_cn || asset.name_en || asset.symbol} 技术分析】`,
+    title: `【${asset.name || asset.symbol} 技术分析】`,
     trend,
     volume,
     support,
     resistance,
-    risk,
-    beginner: '这些价格位置只用于学习观察，不代表未来一定会发生，也不是买入或卖出提示。'
+    risk: `${missing52Week}${risk}`,
+    beginner: `${asset.dataDelayNote || '数据状态暂无说明。'} 这些价格位置只用于学习观察，不代表未来一定会发生，也不是买入或卖出提示。`
   };
 }
 
 function renderTable() {
   const rows = state.assets.slice(0, 20);
   if (rows.length === 0) {
-    assetRows.innerHTML = '<tr><td colspan="14" class="empty">暂无观察标的。</td></tr>';
+    assetRows.innerHTML = '<tr><td colspan="16" class="empty">暂无观察标的。</td></tr>';
     return;
   }
 
   assetRows.innerHTML = rows.map((asset, index) => {
-    const price = asset.latest_price;
-    const percentClass = changeClass(price?.change_percent);
+    const percentClass = changeClass(asset.changePercent);
+    const statusClass = asset.dataStatus === '接口数据' ? 'live' : 'fallback';
     return `
       <tr>
         <td class="index-cell">${index + 1}</td>
         <td><span class="type-pill">${typeLabel(asset)}</span></td>
         <td class="symbol">${asset.symbol || '暂无'}</td>
-        <td class="name-cell">${asset.name_cn || asset.name_en || '暂无'}</td>
-        <td>${displayPrice(price)}</td>
-        <td class="${percentClass}">${formatPercent(price?.change_percent)}</td>
-        <td>${formatNumber(price?.volume, 0)}</td>
-        <td>${displayMarketValue(asset, price)}</td>
-        <td>${formatNumber(price?.pe_ratio)}</td>
-        <td>${asset.sector || '暂无'}</td>
-        <td>${formatNumber(price?.week_52_high)}</td>
-        <td>${formatNumber(price?.week_52_low)}</td>
+        <td class="name-cell">${asset.name || '暂无'}</td>
+        <td><span class="status-pill ${statusClass}">${asset.dataStatus || '暂无'}</span></td>
+        <td>${displayPrice(asset)}</td>
+        <td class="${percentClass}">${formatPercent(asset.changePercent)}</td>
+        <td>${formatNumber(asset.volume, 0)}</td>
+        <td>${displayMarketValue(asset)}</td>
+        <td>${formatNumber(asset.peRatio)}</td>
+        <td>${asset.sectorOrTheme || '暂无'}</td>
+        <td>${formatNumber(asset.week52High)}</td>
+        <td>${formatNumber(asset.week52Low)}</td>
         <td class="judgement-cell">${dailyJudgement(asset)}</td>
-        <td class="explain-cell">${asset.beginner_note || '暂无'}</td>
+        <td class="explain-cell">${asset.beginnerNote || asset.dataDelayNote || '暂无'}</td>
+        <td class="field-cell">${formatFieldStatus(asset)}</td>
       </tr>
     `;
   }).join('');
@@ -179,33 +188,44 @@ function renderDictionary() {
     .join('');
 }
 
-function renderAll(status) {
-  lastUpdate.textContent = formatDateTime(status?.run_finished_at || new Date().toISOString());
+function renderSummary(summary) {
+  dataStatus.textContent = summary?.dataStatus || '暂无';
+  dataSources.textContent = summary?.dataSources || '暂无';
+  delayNote.textContent = summary?.delayNote || '暂无';
+  lastUpdate.textContent = formatDateTime(summary?.updatedAt || new Date().toISOString());
+}
+
+function renderAll(summary) {
+  renderSummary(summary);
   renderTable();
   renderAnalysis();
 }
 
-async function loadAssets() {
+async function loadAssets(forceRefresh = false) {
   refreshBtn.disabled = true;
   refreshBtn.textContent = '刷新中...';
 
   try {
-    const response = await fetch('/api/assets');
+    const url = forceRefresh ? '/api/market-data?refresh=1' : '/api/market-data';
+    const response = await fetch(url);
     const payload = await response.json();
     if (!response.ok) throw new Error(payload.error || '读取失败');
-    state.assets = (payload.assets || []).slice(0, 20);
-    renderAll(payload.status);
+    state.assets = (payload.items || []).slice(0, 20);
+    renderAll(payload.summary);
   } catch (error) {
-    assetRows.innerHTML = `<tr><td colspan="14" class="empty">读取数据失败：${error.message}</td></tr>`;
+    assetRows.innerHTML = `<tr><td colspan="16" class="empty">读取数据失败：${error.message}</td></tr>`;
     analysisList.innerHTML = '<p class="empty">暂无技术分析。</p>';
     lastUpdate.textContent = '暂无';
+    dataStatus.textContent = '读取失败';
+    dataSources.textContent = '暂无';
+    delayNote.textContent = error.message;
   } finally {
     refreshBtn.disabled = false;
     refreshBtn.textContent = '刷新数据';
   }
 }
 
-refreshBtn.addEventListener('click', loadAssets);
+refreshBtn.addEventListener('click', () => loadAssets(true));
 
 renderDictionary();
 loadAssets();

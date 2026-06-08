@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>投资观察池学习表 V2</title>
+    <title>投资观察池学习表 V2.1</title>
     <link rel="stylesheet" href="/style.css" />
   </head>
   <body>
@@ -19,6 +19,12 @@
     </header>
 
     <main class="page">
+      <section class="data-summary" aria-label="行情数据状态">
+        <span>数据状态：<strong id="dataStatus">加载中</strong></span>
+        <span>数据来源：<strong id="dataSources">暂无</strong></span>
+        <span>行情说明：<strong id="delayNote">暂无</strong></span>
+      </section>
+
       <section class="table-section" aria-label="20只标的实时观察表格">
         <div class="table-wrap">
           <table>
@@ -28,6 +34,7 @@
                 <th>类型</th>
                 <th>代码</th>
                 <th>名称</th>
+                <th>数据状态</th>
                 <th>当前价格</th>
                 <th>涨跌幅</th>
                 <th>成交量</th>
@@ -38,10 +45,11 @@
                 <th>52周低点</th>
                 <th>今日走势判断</th>
                 <th>新手解释</th>
+                <th>字段状态</th>
               </tr>
             </thead>
             <tbody id="assetRows">
-              <tr><td colspan="14" class="empty">正在加载 20 只观察标的...</td></tr>
+              <tr><td colspan="16" class="empty">正在加载 20 只观察标的...</td></tr>
             </tbody>
           </table>
         </div>

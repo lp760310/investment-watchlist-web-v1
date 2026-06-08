@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const { createSupabaseClient } = require('./lib/supabaseClient');
 const { runDailyPriceUpdate } = require('./lib/updateDailyPrices');
+const { fetchMarketData } = require('./lib/marketData');
 
 const app = express();
 const PORT = Number(process.env.PORT || 3000);
@@ -50,7 +51,7 @@ function sendFallbackAssets(res, message) {
 app.get('/api/health', async (req, res) => {
   res.json({
     ok: true,
-    name: '投资观察池学习表 V2',
+    name: '投资观察池学习表 V2.1',
     time: new Date().toISOString()
   });
 });
@@ -124,6 +125,16 @@ app.get('/api/assets', async (req, res) => {
     assets: rows,
     status: logs?.[0] || null
   });
+});
+
+app.get('/api/market-data', async (req, res) => {
+  try {
+    const forceRefresh = req.query.refresh === '1' || req.query.refresh === 'true';
+    const marketData = await fetchMarketData({ forceRefresh });
+    res.json(marketData);
+  } catch (error) {
+    res.status(500).json({ error: `读取行情数据失败：${error.message}` });
+  }
 });
 
 app.get('/api/assets/:symbol/history', async (req, res) => {
@@ -211,5 +222,5 @@ function buildTrend(history) {
 }
 
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`投资观察池学习表 V2 已启动：http://localhost:${PORT}`);
+  console.log(`投资观察池学习表 V2.1 已启动：http://localhost:${PORT}`);
 });

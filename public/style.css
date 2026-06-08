@@ -91,6 +91,22 @@ button:disabled {
   padding: 14px;
 }
 
+.data-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  margin-bottom: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.data-summary strong {
+  color: var(--text);
+  font-weight: 700;
+}
+
 .table-wrap {
   overflow-x: auto;
   border: 1px solid var(--line);
@@ -99,7 +115,7 @@ button:disabled {
 
 table {
   width: 100%;
-  min-width: 1460px;
+  min-width: 1660px;
   border-collapse: collapse;
   font-size: 13px;
 }
@@ -154,6 +170,31 @@ tbody tr:hover {
   background: #f9fafb;
   text-align: center;
   white-space: nowrap;
+}
+
+.status-pill {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: #eef2f7;
+  color: #334155;
+  white-space: nowrap;
+}
+
+.status-pill.live {
+  background: #e7f6ee;
+  color: var(--green);
+}
+
+.status-pill.fallback {
+  background: #f7eee9;
+  color: #9a4a2f;
+}
+
+.field-cell {
+  min-width: 220px;
+  color: var(--muted);
+  line-height: 1.45;
 }
 
 .up {
