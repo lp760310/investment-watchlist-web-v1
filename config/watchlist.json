@@ -156,18 +156,6 @@
     "provider_symbol": "DUOL"
   },
   {
-    "symbol": "CELH",
-    "market": "US",
-    "asset_type": "STOCK",
-    "name_cn": "Celsius",
-    "name_en": "Celsius Holdings",
-    "sector": "消费成长",
-    "observe_reason": "观察新消费品牌的渠道扩张和增长放缓风险。",
-    "beginner_note": "消费成长股既看销售增长，也看品牌竞争和库存变化。",
-    "data_provider": "alpha_vantage",
-    "provider_symbol": "CELH"
-  },
-  {
     "symbol": "CRDO",
     "market": "US",
     "asset_type": "STOCK",
@@ -178,54 +166,6 @@
     "beginner_note": "半导体成长股对订单、库存和行业周期非常敏感。",
     "data_provider": "alpha_vantage",
     "provider_symbol": "CRDO"
-  },
-  {
-    "symbol": "TMDX",
-    "market": "US",
-    "asset_type": "STOCK",
-    "name_cn": "TransMedics",
-    "name_en": "TransMedics Group",
-    "sector": "医疗科技",
-    "observe_reason": "观察器官移植设备和医疗服务平台的成长性。",
-    "beginner_note": "医疗科技股要看临床需求、监管、收入增长和利润路径。",
-    "data_provider": "alpha_vantage",
-    "provider_symbol": "TMDX"
-  },
-  {
-    "symbol": "IOT",
-    "market": "US",
-    "asset_type": "STOCK",
-    "name_cn": "Samsara",
-    "name_en": "Samsara",
-    "sector": "工业软件",
-    "observe_reason": "观察物联网和车队管理软件的企业需求。",
-    "beginner_note": "企业软件常看收入留存率、客户增长和自由现金流。",
-    "data_provider": "alpha_vantage",
-    "provider_symbol": "IOT"
-  },
-  {
-    "symbol": "APPF",
-    "market": "US",
-    "asset_type": "STOCK",
-    "name_cn": "AppFolio",
-    "name_en": "AppFolio",
-    "sector": "垂直软件",
-    "observe_reason": "观察房地产管理软件的垂直 SaaS 模式。",
-    "beginner_note": "SaaS 指软件订阅服务，重点看客户续费和利润率。",
-    "data_provider": "alpha_vantage",
-    "provider_symbol": "APPF"
-  },
-  {
-    "symbol": "INTA",
-    "market": "US",
-    "asset_type": "STOCK",
-    "name_cn": "Intapp",
-    "name_en": "Intapp",
-    "sector": "企业软件",
-    "observe_reason": "观察专业服务行业软件公司的增长韧性。",
-    "beginner_note": "垂直软件服务特定行业，客户粘性可能较强但市场空间也要验证。",
-    "data_provider": "alpha_vantage",
-    "provider_symbol": "INTA"
   },
   {
     "symbol": "ONON",

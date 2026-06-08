@@ -51,7 +51,7 @@ function sendFallbackAssets(res, message) {
 app.get('/api/health', async (req, res) => {
   res.json({
     ok: true,
-    name: '投资观察池学习表 V2.2',
+    name: '投资观察池学习表 V2.3',
     time: new Date().toISOString()
   });
 });
@@ -224,5 +224,5 @@ function buildTrend(history) {
 }
 
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`投资观察池学习表 V2.2 已启动：http://localhost:${PORT}`);
+  console.log(`投资观察池学习表 V2.3 已启动：http://localhost:${PORT}`);
 });

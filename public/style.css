@@ -115,7 +115,7 @@ button:disabled {
 
 table {
   width: 100%;
-  min-width: 1660px;
+  min-width: 1320px;
   border-collapse: collapse;
   font-size: 13px;
 }
@@ -155,12 +155,6 @@ tbody tr:hover {
   min-width: 150px;
 }
 
-.explain-cell,
-.judgement-cell {
-  min-width: 210px;
-  line-height: 1.45;
-}
-
 .type-pill {
   display: inline-block;
   min-width: 68px;
@@ -189,12 +183,6 @@ tbody tr:hover {
 .status-pill.fallback {
   background: #f7eee9;
   color: #9a4a2f;
-}
-
-.field-cell {
-  min-width: 220px;
-  color: var(--muted);
-  line-height: 1.45;
 }
 
 .up {
@@ -234,26 +222,6 @@ tbody tr:hover {
   margin: 2px 0;
 }
 
-.dictionary {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px 16px;
-  margin: 0 0 18px;
-  padding-top: 8px;
-  border-top: 1px solid var(--line);
-}
-
-.dictionary dt {
-  font-weight: 700;
-}
-
-.dictionary dd {
-  margin: 3px 0 0;
-  color: var(--muted);
-  line-height: 1.5;
-  font-size: 14px;
-}
-
 @media (max-width: 900px) {
   .topbar {
     align-items: flex-start;
@@ -268,8 +236,7 @@ tbody tr:hover {
     font-size: 22px;
   }
 
-  .analysis-list,
-  .dictionary {
+  .analysis-list {
     grid-template-columns: 1fr;
   }
 }
